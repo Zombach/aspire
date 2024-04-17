@@ -80,7 +80,7 @@ public class PassThroughServiceEndpointResolverTests
         {
             InitialData = new Dictionary<string, string?>
             {
-                ["services:basket:default:0"] = "http://localhost:8080",
+                ["services:basket:http:0"] = "http://localhost:8080",
             }
         };
         var config = new ConfigurationBuilder().Add(configSource);
@@ -114,7 +114,7 @@ public class PassThroughServiceEndpointResolverTests
         {
             InitialData = new Dictionary<string, string?>
             {
-                ["services:basket:default:0"] = "http://localhost:8080",
+                ["services:basket:http:0"] = "http://localhost:8080",
             }
         };
         var config = new ConfigurationBuilder().Add(configSource);

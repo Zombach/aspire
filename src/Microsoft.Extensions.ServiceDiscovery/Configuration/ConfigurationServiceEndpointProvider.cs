@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.ServiceDiscovery.Configuration;
 /// </summary>
 internal sealed partial class ConfigurationServiceEndpointProvider : IServiceEndpointProvider, IHostNameFeature
 {
-    private const string DefaultEndpointName = "default";
+    private const string DefaultEndpointName = "http";
     private readonly string _serviceName;
     private readonly string? _endpointName;
     private readonly string[] _schemes;
@@ -74,11 +74,12 @@ internal sealed partial class ConfigurationServiceEndpointProvider : IServiceEnd
         string endpointName;
         if (string.IsNullOrWhiteSpace(_endpointName))
         {
-            if (_schemes.Length == 0)
+            var defaultSection = section.GetSection(DefaultEndpointName);
+            if (defaultSection.Exists() || _schemes.Length == 0)
             {
-                // Use the section named "default".
+                // Use the default section name by default.
                 endpointName = DefaultEndpointName;
-                namedSection = section.GetSection(endpointName);
+                namedSection = defaultSection;
             }
             else
             {

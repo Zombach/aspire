@@ -233,8 +233,8 @@ public class ConfigurationServiceEndpointResolverTests
         {
             InitialData = new Dictionary<string, string?>
             {
-                ["services:basket:default:0"] = "http://localhost:8080",
-                ["services:basket:default:1"] = "remotehost:9090",
+                ["services:basket:http:0"] = "http://localhost:8080",
+                ["services:basket:http:1"] = "remotehost:9090",
                 ["services:basket:grpc:0"] = "localhost:2222",
                 ["services:basket:grpc:1"] = "127.0.0.1:3333",
                 ["services:basket:grpc:2"] = "http://remotehost:4444",
