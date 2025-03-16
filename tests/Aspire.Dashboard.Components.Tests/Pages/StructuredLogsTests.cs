@@ -23,7 +23,7 @@ using Xunit;
 namespace Aspire.Dashboard.Components.Tests.Pages;
 
 [UseCulture("en-US")]
-public partial class StructuredLogsTests : TestContext
+public partial class StructuredLogsTests : DashboardTestContext
 {
     [Fact]
     public void Render_TraceIdAndSpanId_FilterAdded()
@@ -170,6 +170,8 @@ public partial class StructuredLogsTests : TestContext
         keycodeModule.Setup<string>("RegisterKeyCode", _ => true);
 
         JSInterop.SetupModule(GetFluentFile("./_content/Microsoft.FluentUI.AspNetCore.Components/Components/Toolbar/FluentToolbar.razor.js", version));
+
+        JSInterop.SetupModule(GetFluentFile("./_content/Microsoft.FluentUI.AspNetCore.Components/Components/Menu/FluentMenu.razor.js", version));
 
         JSInterop.SetupVoid("initializeContinuousScroll");
 

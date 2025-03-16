@@ -110,31 +110,35 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [Theory]
+    [InlineData(null)]
+    [InlineData("random")]
     [RequiresDocker]
-    public async Task AzureEventHubsNs_ProducesAndConsumes()
+    public async Task AzureEventHubsNs_ProducesAndConsumes(string? hubName)
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
 
         using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
-        var eventHubns = builder.AddAzureEventHubs("eventhubns")
+        var eventHubNs = builder.AddAzureEventHubs("eventhubns")
             .RunAsEmulator();
-        var eventHub = eventHubns.AddHub("hub");
+
+        var resourceName = "hub";
+        var eventHub = eventHubNs.AddHub(resourceName, hubName);
 
         using var app = builder.Build();
         await app.StartAsync();
 
         var hb = Host.CreateApplicationBuilder();
 
-        hb.Configuration["ConnectionStrings:eventhubns"] = await eventHubns.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None);
-        hb.AddAzureEventHubProducerClient("eventhubns", settings => settings.EventHubName = "hub");
-        hb.AddAzureEventHubConsumerClient("eventhubns", settings => settings.EventHubName = "hub");
+        hb.Configuration["ConnectionStrings:eventhubns"] = await eventHubNs.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None);
+        hb.AddAzureEventHubProducerClient("eventhubns", settings => settings.EventHubName = eventHub.Resource.HubName);
+        hb.AddAzureEventHubConsumerClient("eventhubns", settings => settings.EventHubName = eventHub.Resource.HubName);
 
         using var host = hb.Build();
         await host.StartAsync();
 
         var rns = app.Services.GetRequiredService<ResourceNotificationService>();
-        await rns.WaitForResourceHealthyAsync(eventHubns.Resource.Name, cts.Token);
+        await rns.WaitForResourceHealthyAsync(eventHubNs.Resource.Name, cts.Token);
 
         var producerClient = host.Services.GetRequiredService<EventHubProducerClient>();
         var consumerClient = host.Services.GetRequiredService<EventHubConsumerClient>();
@@ -271,7 +275,7 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
             .WithProperties(hub => hub.PartitionCount = 3)
             .AddConsumerGroup("cg1", "group-name");
 
-        var manifest = await ManifestUtils.GetManifestWithBicep(eventHubs.Resource);
+        var manifest = await AzureManifestUtils.GetManifestWithBicep(eventHubs.Resource);
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -318,6 +322,8 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
             }
 
             output eventHubsEndpoint string = eh.properties.serviceBusEndpoint
+
+            output name string = eh.name
             """;
 
         Assert.Equal(expectedBicep, manifest.BicepText);
@@ -344,7 +350,7 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         using var app = builder.Build();
 
-        var manifest = await ManifestUtils.GetManifestWithBicep(eventHubs.Resource);
+        var manifest = await AzureManifestUtils.GetManifestWithBicep(eventHubs.Resource);
 
         Assert.NotNull(hub);
         Assert.Equal("hub1", hub.Name.Value);

@@ -20,7 +20,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             .RunAsExisting(existingResourceName, resourceGroupParameter: default);
         serviceBus.AddServiceBusQueue("queue");
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(serviceBus.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(serviceBus.Resource);
 
         var expectedManifest = """
             {
@@ -66,6 +66,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output serviceBusEndpoint string = messaging.properties.serviceBusEndpoint
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -82,7 +84,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             .RunAsExisting(existingResourceName, resourceGroupParameter: default);
         serviceBus.AddServiceBusQueue("queue");
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(serviceBus.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(serviceBus.Resource);
 
         var expectedManifest = """
             {
@@ -137,6 +139,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output serviceBusEndpoint string = messaging.properties.serviceBusEndpoint
+            
+            output name string = messaging.name
             """;
 
         output.WriteLine(BicepText);
@@ -153,7 +157,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             .PublishAsExisting(existingResourceName, resourceGroupParameter: default);
         serviceBus.AddServiceBusQueue("queue");
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(serviceBus.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(serviceBus.Resource);
 
         var expectedManifest = """
             {
@@ -199,6 +203,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output serviceBusEndpoint string = messaging.properties.serviceBusEndpoint
+            
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -216,7 +222,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
         serviceBus.AddServiceBusQueue("queue");
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(serviceBus.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(serviceBus.Resource);
 
         var expectedManifest = """
             {
@@ -266,6 +272,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output serviceBusEndpoint string = messaging.properties.serviceBusEndpoint
+            
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -280,7 +288,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             .PublishAsExisting("existingResourceName", "existingResourceGroupName");
         serviceBus.AddServiceBusQueue("queue");
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(serviceBus.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(serviceBus.Resource);
 
         var expectedManifest = """
             {
@@ -327,6 +335,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output serviceBusEndpoint string = messaging.properties.serviceBusEndpoint
+            
+            output name string = messaging.name
             """;
 
         output.WriteLine(BicepText);
@@ -343,7 +353,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var storageAccount = builder.AddAzureStorage("storage")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(storageAccount.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(storageAccount.Resource);
 
         var expectedManifest = """
             {
@@ -416,6 +426,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output queueEndpoint string = storage.properties.primaryEndpoints.queue
 
             output tableEndpoint string = storage.properties.primaryEndpoints.table
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -430,7 +442,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var storageAccount = builder.AddAzureStorage("storage")
             .PublishAsExisting("existingResourcename", "existingResourceGroupName");
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(storageAccount.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(storageAccount.Resource);
 
         var expectedManifest = """
             {
@@ -500,6 +512,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output queueEndpoint string = storage.properties.primaryEndpoints.queue
 
             output tableEndpoint string = storage.properties.primaryEndpoints.table
+
+            output name string = storage.name
             """;
 
         output.WriteLine(BicepText);
@@ -516,7 +530,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var appConfiguration = builder.AddAzureAppConfiguration("appConfig")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(appConfiguration.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(appConfiguration.Resource);
 
         var expectedManifest = """
             {
@@ -561,6 +575,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output appConfigEndpoint string = appConfig.properties.endpoint
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -577,7 +593,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var eventHubs = builder.AddAzureEventHubs("eventHubs")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(eventHubs.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(eventHubs.Resource);
 
         var expectedManifest = """
             {
@@ -622,6 +638,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output eventHubsEndpoint string = eventHubs.properties.serviceBusEndpoint
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -638,7 +656,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var keyVault = builder.AddAzureKeyVault("keyVault")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(keyVault.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(keyVault.Resource);
 
         var expectedManifest = """
             {
@@ -683,6 +701,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output vaultUri string = keyVault.properties.vaultUri
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -699,7 +719,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var logAnalytics = builder.AddAzureLogAnalyticsWorkspace("logAnalytics")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(logAnalytics.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(logAnalytics.Resource);
 
         var expectedManifest = """
             {
@@ -743,7 +763,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var postgresSql = builder.AddAzurePostgresFlexibleServer("postgresSql")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(postgresSql.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(postgresSql.Resource);
 
         var expectedManifest = """
             {
@@ -823,7 +843,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             .PublishAsExisting(existingResourceName, existingResourceGroupName)
             .WithPasswordAuthentication(existingUserName, existingPassword);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(postgresSql.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(postgresSql.Resource);
 
         var expectedManifest = """
             {
@@ -897,7 +917,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var search = builder.AddAzureSearch("search")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(search.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(search.Resource);
 
         var expectedManifest = """
             {
@@ -952,6 +972,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output connectionString string = 'Endpoint=https://${existingResourceName}.search.windows.net'
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -968,7 +990,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var signalR = builder.AddAzureSignalR("signalR")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(signalR.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(signalR.Resource);
 
         var expectedManifest = """
             {
@@ -1013,6 +1035,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output hostName string = signalR.properties.hostName
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -1029,7 +1053,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var webPubSub = builder.AddAzureWebPubSub("webPubSub")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(webPubSub.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(webPubSub.Resource);
 
         var expectedManifest = """
             {
@@ -1074,6 +1098,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output endpoint string = 'https://${webPubSub.properties.hostName}'
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -1090,7 +1116,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var sqlServer = builder.AddAzureSqlServer("sqlServer")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(sqlServer.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(sqlServer.Resource);
 
         var expectedManifest = """
             {
@@ -1158,7 +1184,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var sqlServer = builder.AddAzureSqlServer("sqlServer")
             .RunAsExisting(existingResourceName, resourceGroupParameter: default);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(sqlServer.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(sqlServer.Resource);
 
         var expectedManifest = """
             {
@@ -1233,7 +1259,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var redis = builder.AddAzureRedis("redis")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(redis.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(redis.Resource);
 
         var expectedManifest = """
             {
@@ -1293,7 +1319,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             .PublishAsExisting("existingResourceName", "existingResourceGroupName")
             .WithAccessKeyAuthentication();
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(redis.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(redis.Resource);
 
         var expectedManifest = """
             {
@@ -1348,7 +1374,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         var appInsights = builder.AddAzureApplicationInsights("appInsights")
             .PublishAsExisting(existingResourceName, existingResourceGroupName);
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(appInsights.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(appInsights.Resource);
 
         var expectedManifest = """
             {
@@ -1393,7 +1419,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             .PublishAsExisting(existingResourceName, existingResourceGroupName)
             .AddDeployment(new AzureOpenAIDeployment("mymodel", "gpt-35-turbo", "0613", "Basic", 4));
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(openAI.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(openAI.Resource);
 
         var expectedManifest = """
             {
@@ -1453,6 +1479,8 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
 
             output connectionString string = 'Endpoint=${openAI.properties.endpoint}'
+
+            output name string = existingResourceName
             """;
 
         output.WriteLine(BicepText);
@@ -1472,7 +1500,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         cosmos.AddCosmosDatabase("mydb")
             .AddContainer("container", "/id");
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(cosmos.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(cosmos.Resource);
 
         var expectedManifest = """
             {
@@ -1568,7 +1596,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
         cosmos.AddCosmosDatabase("mydb")
             .AddContainer("container", "/id");
 
-        var (ManifestNode, BicepText) = await ManifestUtils.GetManifestWithBicep(cosmos.Resource);
+        var (ManifestNode, BicepText) = await AzureManifestUtils.GetManifestWithBicep(cosmos.Resource);
 
         var expectedManifest = """
             {

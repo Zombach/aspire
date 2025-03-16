@@ -25,6 +25,15 @@ public static class AzureStorageExtensions
     /// <param name="builder">The builder for the distributed application.</param>
     /// <param name="name">The name of the resource.</param>
     /// <returns></returns>
+    /// <remarks>
+    /// By default references to the Azure Storage resource will be assigned the following roles:
+    /// 
+    /// - <see cref="StorageBuiltInRole.StorageBlobDataContributor"/>
+    /// - <see cref="StorageBuiltInRole.StorageTableDataContributor"/>
+    /// - <see cref="StorageBuiltInRole.StorageQueueDataContributor"/>
+    ///
+    /// These can be replaced by calling <see cref="WithRoleAssignments{T}(IResourceBuilder{T}, IResourceBuilder{AzureStorageResource}, StorageBuiltInRole[])"/>.
+    /// </remarks>
     public static IResourceBuilder<AzureStorageResource> AddAzureStorage(this IDistributedApplicationBuilder builder, [ResourceName] string name)
     {
         ArgumentNullException.ThrowIfNull(builder);
@@ -68,23 +77,33 @@ public static class AzureStorageExtensions
             };
             infrastructure.Add(blobs);
 
-            var principalTypeParameter = new ProvisioningParameter(AzureBicepResource.KnownParameters.PrincipalType, typeof(string));
-            infrastructure.Add(principalTypeParameter);
-            var principalIdParameter = new ProvisioningParameter(AzureBicepResource.KnownParameters.PrincipalId, typeof(string));
-            infrastructure.Add(principalIdParameter);
+            if (infrastructure.AspireResource.TryGetLastAnnotation<AppliedRoleAssignmentsAnnotation>(out var appliedRoleAssignments))
+            {
+                var principalTypeParameter = new ProvisioningParameter(AzureBicepResource.KnownParameters.PrincipalType, typeof(string));
+                infrastructure.Add(principalTypeParameter);
+                var principalIdParameter = new ProvisioningParameter(AzureBicepResource.KnownParameters.PrincipalId, typeof(string));
+                infrastructure.Add(principalIdParameter);
 
-            infrastructure.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageBlobDataContributor, principalTypeParameter, principalIdParameter));
-            infrastructure.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageTableDataContributor, principalTypeParameter, principalIdParameter));
-            infrastructure.Add(storageAccount.CreateRoleAssignment(StorageBuiltInRole.StorageQueueDataContributor, principalTypeParameter, principalIdParameter));
+                foreach (var role in appliedRoleAssignments.Roles)
+                {
+                    infrastructure.Add(storageAccount.CreateRoleAssignment(new StorageBuiltInRole(role.Id), principalTypeParameter, principalIdParameter));
+                }
+            }
 
             infrastructure.Add(new ProvisioningOutput("blobEndpoint", typeof(string)) { Value = storageAccount.PrimaryEndpoints.BlobUri });
             infrastructure.Add(new ProvisioningOutput("queueEndpoint", typeof(string)) { Value = storageAccount.PrimaryEndpoints.QueueUri });
             infrastructure.Add(new ProvisioningOutput("tableEndpoint", typeof(string)) { Value = storageAccount.PrimaryEndpoints.TableUri });
+
+            // We need to output name to externalize role assignments.
+            infrastructure.Add(new ProvisioningOutput("name", typeof(string)) { Value = storageAccount.Name });
         };
 
         var resource = new AzureStorageResource(name, configureInfrastructure);
         return builder.AddResource(resource)
-                      .WithManifestPublishingCallback(resource.WriteToManifest);
+            .WithDefaultRoleAssignments(StorageBuiltInRole.GetBuiltInRoleName,
+                StorageBuiltInRole.StorageBlobDataContributor,
+                StorageBuiltInRole.StorageTableDataContributor,
+                StorageBuiltInRole.StorageQueueDataContributor);
     }
 
     /// <summary>
@@ -306,5 +325,35 @@ public static class AzureStorageExtensions
 
         var resource = new AzureQueueStorageResource(name, builder.Resource);
         return builder.ApplicationBuilder.AddResource(resource);
+    }
+
+    /// <summary>
+    /// Assigns the specified roles to the given resource, granting it the necessary permissions
+    /// on the target Azure Storage account. This replaces the default role assignments for the resource.
+    /// </summary>
+    /// <param name="builder">The resource to which the specified roles will be assigned.</param>
+    /// <param name="target">The target Azure Storage account.</param>
+    /// <param name="roles">The built-in storage roles to be assigned.</param>
+    /// <returns>The updated <see cref="IResourceBuilder{T}"/> with the applied role assignments.</returns>
+    /// <example>
+    /// Assigns the StorageBlobDataContributor role to the 'Projects.Api' project.
+    /// <code lang="csharp">
+    /// var builder = DistributedApplication.CreateBuilder(args);
+    ///
+    /// var storage = builder.AddAzureStorage("storage");
+    /// var blobs = storage.AddBlobs("blobs");
+    /// 
+    /// var api = builder.AddProject&lt;Projects.Api&gt;("api")
+    ///   .WithRoleAssignments(storage, StorageBuiltInRole.StorageBlobDataContributor)
+    ///   .WithReference(blobs);
+    /// </code>
+    /// </example>
+    public static IResourceBuilder<T> WithRoleAssignments<T>(
+        this IResourceBuilder<T> builder,
+        IResourceBuilder<AzureStorageResource> target,
+        params StorageBuiltInRole[] roles)
+        where T : IResource
+    {
+        return builder.WithRoleAssignments(target, StorageBuiltInRole.GetBuiltInRoleName, roles);
     }
 }

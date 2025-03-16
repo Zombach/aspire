@@ -27,6 +27,14 @@ public class AzureProvisioningResource(string name, Action<AzureResourceInfrastr
     /// </summary>
     public ProvisioningBuildOptions? ProvisioningBuildOptions { get; set; }
 
+    /// <summary>
+    /// Adds a new <see cref="ProvisionableResource"/> into <paramref name="infra"/>. The new resource
+    /// represents a reference to the current <see cref="AzureProvisioningResource"/> via https://learn.microsoft.com/azure/azure-resource-manager/bicep/existing-resource.
+    /// </summary>
+    /// <param name="infra">The <see cref="AzureResourceInfrastructure"/> to add the existing resource into.</param>
+    /// <returns>A new <see cref="ProvisionableResource"/>, typically using the FromExisting method on the derived <see cref="ProvisionableResource"/> class.</returns>
+    public virtual ProvisionableResource AddAsExistingResource(AzureResourceInfrastructure infra) => throw new NotImplementedException();
+
     /// <inheritdoc/>
     public override BicepTemplateFile GetBicepTemplateFile(string? directory = null, bool deleteTemporaryFileOnDispose = true)
     {
@@ -90,10 +98,7 @@ public class AzureProvisioningResource(string name, Action<AzureResourceInfrastr
             provisionedResource = createExisting(infrastructure.AspireResource.GetBicepIdentifier(), existingResourceName);
             if (existingAnnotation.ResourceGroup is not null)
             {
-                var existingResourceGroup = existingAnnotation.ResourceGroup is ParameterResource resourceGroupParameter
-                    ? resourceGroupParameter
-                    : existingAnnotation.ResourceGroup;
-                infrastructure.AspireResource.Scope = new(existingResourceGroup);
+                infrastructure.AspireResource.Scope = new(existingAnnotation.ResourceGroup);
             }
         }
         else
